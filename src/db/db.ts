@@ -16,13 +16,16 @@ export interface Term {
   term: string;
   sources: string[];
 }
-
 export class MySubClassedDexie extends Dexie {
   // 'friends' is added by dexie when declaring the stores()
   // We just tell the typing system this is the case
   content!: Table<Content, string>;
   terms!: Table<Term, string>;
   addTerm: (term: string) => void;
+  addContent: (
+    title: string,
+    text: string
+  ) => Promise<{ contentId: string; addedTerms: string[] }>;
 
   constructor() {
     super('myDatabase');
@@ -31,6 +34,18 @@ export class MySubClassedDexie extends Dexie {
       terms: '++id, term, sources',
     });
     this.addTerm = (term: string) => this.terms.add({ term, sources: [] });
+    this.addContent = async (title: string, text: string) => {
+      const contentId = await this.content.add({ title, text });
+
+      const terms = text.split(' ');
+
+      const items = terms.map((term) => {
+        return { term, sources: [contentId] };
+      });
+      const addedTerms = await this.terms.bulkAdd(items, { allKeys: true });
+
+      return { contentId, addedTerms };
+    };
   }
 }
 

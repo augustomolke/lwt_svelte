@@ -15,6 +15,7 @@ export interface Term {
   id?: number;
   term: string;
   sources: string[];
+  status: number;
 }
 export class MySubClassedDexie extends Dexie {
   // 'friends' is added by dexie when declaring the stores()
@@ -31,16 +32,17 @@ export class MySubClassedDexie extends Dexie {
     super('myDatabase');
     this.version(1).stores({
       content: '++id, title, text', // Primary key and indexed props
-      terms: '++id, term, sources',
+      terms: '++id, term, sources, status',
     });
-    this.addTerm = (term: string) => this.terms.add({ term, sources: [] });
+    this.addTerm = (term: string) =>
+      this.terms.add({ term, sources: [], status: 0 });
     this.addContent = async (title: string, text: string) => {
       const contentId = await this.content.add({ title, text });
 
       const terms = text.split(' ');
 
       const items = terms.map((term) => {
-        return { term, sources: [contentId] };
+        return { term, sources: [contentId], status: 0 };
       });
       const addedTerms = await this.terms.bulkAdd(items, { allKeys: true });
 

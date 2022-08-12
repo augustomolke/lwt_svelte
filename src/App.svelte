@@ -1,6 +1,13 @@
 <script lang="ts">
   import svelteLogo from './assets/svelte.svg'
   import Counter from './lib/Counter.svelte'
+  import db from './db'
+
+
+  db.content.add({title:'teste', text:'asdasdads'})
+  db.addTerm('termo')
+
+  
 </script>
 
 <main>

@@ -5,9 +5,17 @@
 
 
 
-  let value;
+  let content;
 
-  const handleSubmit = ()=>  db.addContent('Texto teste', value)
+  let add=[]
+
+  const handleSubmit = async ()=> {
+
+  const {addedTerms} = await db.addContent('Texto teste', content)
+
+  add=addedTerms
+
+  }
 
   
 </script>
@@ -16,10 +24,14 @@
 
 
   <form on:submit|preventDefault={handleSubmit}>
-    <textarea  bind:value/>
+    <textarea  bind:value={content}/>
 
     <button>Submit</button>
   </form>
+
+  <p>
+    {add.length} palavars adicionadas
+  </p>
 </main>
 
 <style>

@@ -1,51 +1,34 @@
 <script lang="ts">
-  import Content from './lib/Content.svelte'
-  import db from './db'
-  import Term from './lib/Term.svelte'
+import Content from './lib/Content.svelte'
+import db from './db'
+import currentContent from './stores/currentContent'
 
 
+let content = $currentContent.originalString
+let title = $currentContent.title
 
-  let content;
-  let title;
+const handleSubmit = async () => {
+    await db.addContent($currentContent.title, $currentContent.originalString)
+}
 
-  let add=[]
-
-  const handleSubmit = async ()=> {
-
-  const {addedTerms} = await db.addContent(title, content)
-
-  add=addedTerms
-
-  }
-
-
-  
-  // content && content.split(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~ ]+/)
+// content && content.split(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~ ]+/)
 
 
 </script>
 
 <main class="container">
 
-  <form on:submit|preventDefault={handleSubmit}>
+    <form on:submit|preventDefault={handleSubmit}>
 
-    <h1>Teste</h1>
-    <input bind:value={title}/>
-    <textarea  bind:value={content}/>
+        <h1>Teste</h1>
+        <input bind:value={title} on:input="{()=>currentContent.setContent(content, title)}"/>
+        <textarea  bind:value={content} on:input="{()=>currentContent.setContent(content, title)}"/>
+        <button>Submit</button>
+      </form>
 
-    <button>Submit</button>
-  </form>
-
-  {#if add.length>0} <p>
-    {add.length} Palavras adicionadas
-  </p>{/if}
-
-  <Content content={content}/>
-
-
+    <Content/>
 </main>
 
 <style>
-
 
 </style>

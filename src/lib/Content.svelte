@@ -1,14 +1,10 @@
-<script>
-    export let content;
+<script lang='ts'>
     import Term from './Term.svelte'
-    $: terms = content && content.split(' ')
+    import currentContent from '../stores/currentContent'
 </script>
 
 <div class='container-fluid'>
-    
-{#if terms}
-{#each terms as term }
+{#each $currentContent.parsed as term }
   <Term term={term}/>
 {/each}
-{/if}
 </div>

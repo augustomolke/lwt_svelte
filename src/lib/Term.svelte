@@ -1,5 +1,7 @@
-<script>    
-    export let term;
+<script lang="ts">    
+    import type {Terms} from "../stores/currentContent";
+    import currentContent from "../stores/currentContent";
+    export let term: Terms;
 
     const statusDict = {
     0:'neverSeen',
@@ -8,35 +10,25 @@
     3:'proficient'
 }
 
-    const hasSymbol = term.match(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~ ]+/)
-    $: words = hasSymbol ? hasSymbol.input.split(hasSymbol[0]).filter(w=>w)
-    .map(w=>({word:w, status:0})) : [{word:term, status:0}]
-    $: symb = hasSymbol && hasSymbol[0]
-
-    const handleClick = (inputW, inputS)=>{
-        words = words.map(w=>{
-            if(w.word===inputW){
-                return {word:inputW, status: inputS < Object.keys(statusDict).length - 1 ? inputS+1 : 0}
-            }
-
-            return w
-        })
+const newStatus = (current:number):number=>{
+    if(current < Object.keys(statusDict).length-1){
+        return current +1
     }
 
-
+    return 0
+}
 </script>
 
-{#each words as {word, status}}
-<div on:click={()=>handleClick(word, status)} 
-    class:good={status===2} 
-    class:neverSeen={status===0}
-    class:regular={status===1}
-    class:proficient={status===3}
+{#if term.type==='term'}
+<div on:click={()=>currentContent.updateTermStatus(term.value, newStatus(term.status))} 
+    class:good={term.status===2} 
+    class:neverSeen={term.status===0}
+    class:regular={term.status===1}
+    class:proficient={term.status===3}
     role="button" 
-    class="secondary outline word">{word}</div>
-{/each}
-{#if hasSymbol}
-<p>{symb}</p>
+    class="secondary outline word">{term.value}</div>
+    {:else if term.type==='symbol'}
+<p>{term.value}</p>
 {/if}
 
 

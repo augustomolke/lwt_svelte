@@ -9,9 +9,14 @@
 
 <div class='container-fluid'>
 
+  {#await $currentContent.promise}
+    <p>Processing...</p>
+  {:then} 
   {#each $currentContent.parsed as term }
   <Term term={term} handleClick={()=>handleTermClick(term)}/>
   {/each}
+  {/await}
+
   
 
 </div>

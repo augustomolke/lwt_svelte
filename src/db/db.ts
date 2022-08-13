@@ -55,6 +55,7 @@ export class MySubClassedDexie extends Dexie {
     originalString: string,
     parsed: Term[]
   ) => Promise<number>;
+  updateContent: (id: number, newContent: Content) => Promise<number>;
   getContents: () => Promise<Content[]>;
 
   constructor() {
@@ -112,6 +113,9 @@ export class MySubClassedDexie extends Dexie {
     };
     this.getContent = (id) => {
       return this.content.get(id);
+    };
+    this.updateContent = (id, newContent) => {
+      return this.content.update(id, newContent);
     };
   }
 }

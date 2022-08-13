@@ -2,14 +2,21 @@ import { writable } from 'svelte/store';
 import db, { splitContent, type Term } from '../../db';
 import type { Content } from '../../db';
 
-const { subscribe, update, set } = writable<Content>({
+const defaultContent: Content & { promise?: Promise<Content> } = {
+  id: null,
   originalString: '',
   title: '',
   parsed: [],
-});
+  promise: null,
+};
+
+const { subscribe, update, set } = writable<
+  Content & { promise?: Promise<Content> }
+>(defaultContent);
 
 export default {
   subscribe,
+  setDefault: () => set(defaultContent),
   createContent: async (content: string, title: string, sync = true) => {
     const termsArray = splitContent(content);
 
@@ -27,7 +34,10 @@ export default {
     );
 
     if (sync) {
-      await db.addContent(title, content, parsed);
+      const id = await db.addContent(title, content, parsed);
+      await db.bulkAddTerm(parsed);
+
+      set(await db.getContent(id));
     }
     update((u) => ({ ...u, originalString: content, parsed }));
   },
@@ -45,6 +55,7 @@ export default {
   setTitle: (title: string) => {
     update((u) => ({ ...u, title }));
   },
+  setPromise: (promise) => update((c) => ({ ...c, promise })),
   updateTermStatus: async (
     term: string,
     status: number,

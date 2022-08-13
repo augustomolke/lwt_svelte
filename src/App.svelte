@@ -13,7 +13,7 @@ import currentState from './stores/currentState'
         }>Read</button>
     <button on:click={()=>
         currentState.setAction('input')
-    }>New text</button>
+    }> Create text</button>
 
     {#if $currentState.action === 'read'}
     <ReadContent/>

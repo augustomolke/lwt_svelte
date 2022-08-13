@@ -4,8 +4,8 @@
 
     const contentsPromise = db.getContents()
 
+    
 
-$: console.log($currentContent.parsed.filter(p=>p.id==='VIDIS'))
 </script>
 
 
@@ -17,7 +17,8 @@ $: console.log($currentContent.parsed.filter(p=>p.id==='VIDIS'))
     {:then contents}
 
     {#each contents as content}
-        <div role="button"  on:click="{()=>currentContent.setContent(content.id)}">{content.title}</div>
+        <div role="button"  on:click="{ ()=>currentContent.setPromise(currentContent.setContent(content.id))
+         }">{content.title}</div>
     {/each}
 
     {:catch error}

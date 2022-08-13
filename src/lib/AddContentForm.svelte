@@ -13,16 +13,14 @@ let {originalString, title} = $currentContent
 
 let contentPromise;
 
-
-
 const handleSubmit = async () => {
     if($currentContent.title && $currentContent.originalString){
-        contentPromise = Promise.all([db.addContent($currentContent.title, $currentContent.originalString, $currentContent.parsed)
-        , db.bulkAddTerm($currentContent.parsed
-        .map(c=>({status:c.status, value:c.value})))])
-
+        if($currentContent.id){
+            db.updateContent($currentContent.id, $currentContent)
+        }else{
+        contentPromise = currentContent.createContent(originalString,title)
+        }
         errors={}
-        return
     }
     if(!$currentContent.title){
         errors.title='A title is required!'
@@ -46,18 +44,14 @@ const setCurrentTitle =  ()=> currentContent.setTitle(title)
         <textarea  class:error={errors.originalString}  bind:value={originalString} on:input="{setCurrentContent}"/>
 
         {#await contentPromise}
-
         <p> Processing... </p>
-
         {:then}
         <Content handleTermClick={(term)=>currentContent.updateTermStatus(term.value, newStatus(term.status))}/>
-
         {:catch error}
 
         <p> Something went wrong...{error}</p>
 
         {/await}
-
 
         <button>Submit</button>
       </form>

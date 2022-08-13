@@ -13,7 +13,7 @@
     class:regular={term.status===1}
     class:proficient={term.status===3}
     role="button" 
-    class="secondary outline word">{term.value}{term.status}</div>
+    class="secondary outline word">{term.value}</div>
     {:else if term.type==='symbol'}
 <p>{term.value}</p>
 {/if}

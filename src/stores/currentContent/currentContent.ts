@@ -1,38 +1,8 @@
 import { writable } from 'svelte/store';
+import db, { splitContent, type Term } from '../../db';
+import type { Content } from '../../db';
 
-export interface Terms {
-  type: 'term' | 'symbol';
-  value: string;
-  status: number;
-}
-
-export interface CurrentContent {
-  originalString: string;
-  title: string;
-  parsed: Terms[];
-}
-
-const splitContent = (originalContent: string): Terms[] => {
-  const terms = originalContent
-    .replaceAll(
-      /([`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~.(\r\n|\r|\n)]+)/g,
-      ' $1 '
-    )
-    .split(/ +/)
-    .map((t) => {
-      const type: Terms['type'] = t.match(
-        /([`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~.(\r\n|\r|\n)]+)/g
-      )
-        ? 'symbol'
-        : 'term';
-
-      return { type, value: t, status: 0 };
-    });
-
-  return terms;
-};
-
-const { subscribe, set, update } = writable<CurrentContent>({
+const { subscribe, update, set } = writable<Content>({
   originalString: '',
   title: '',
   parsed: [],
@@ -40,21 +10,64 @@ const { subscribe, set, update } = writable<CurrentContent>({
 
 export default {
   subscribe,
-  setContent: (originalString: string, title: string) => {
-    set({ originalString, title, parsed: splitContent(originalString) });
+  createContent: async (content: string, title: string, sync = true) => {
+    const termsArray = splitContent(content);
+
+    const parsed = await Promise.all(
+      termsArray.map(async (term) => {
+        const savedTerm = await db.getTerm(term.value);
+        if (savedTerm) {
+          return {
+            ...term,
+            status: savedTerm.status,
+          };
+        }
+        return term;
+      })
+    );
+
+    if (sync) {
+      await db.addContent(title, content, parsed);
+    }
+    update((u) => ({ ...u, originalString: content, parsed }));
   },
-  updateTermStatus: (term: string, status: number): void => {
+  setContent: async (contentId: number) => {
+    const content = await db.getContent(contentId);
+
+    if (content) {
+      const terms = content.parsed.map((p) => p.id);
+
+      content.parsed = await db.getTerms(terms);
+
+      set(content);
+    }
+  },
+  setTitle: (title: string) => {
+    update((u) => ({ ...u, title }));
+  },
+  updateTermStatus: async (
+    term: string,
+    status: number,
+    sync = false
+  ): Promise<void> => {
+    const old = await db.getTerm(term);
+    const newTerm = old ? { ...old, status } : false;
+
+    if (sync && newTerm) {
+      await db.updateTerm(newTerm);
+    }
+
     update((current) => {
-      const newValue = current;
-      newValue.parsed = newValue.parsed.map((c) => {
+      const updatedParsed = current.parsed.map((c) => {
         if (c.value === term) {
           return { ...c, status };
         }
-
         return c;
       });
 
-      return newValue;
+      const newvalue = { ...current, parsed: updatedParsed };
+
+      return newvalue;
     });
   },
 };

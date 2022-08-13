@@ -11,6 +11,7 @@ import {newStatus} from '../utils/termStatus'
 let errors: Record<string, string> = {}
 let {originalString, title} = $currentContent
 
+
 let contentPromise;
 
 const handleSubmit = async () => {
@@ -18,7 +19,7 @@ const handleSubmit = async () => {
         if($currentContent.id){
             db.updateContent($currentContent.id, $currentContent)
         }else{
-        contentPromise = currentContent.createContent(originalString,title)
+        contentPromise = currentContent.createContent(originalString,title,$currentContent.parsed)
         }
         errors={}
     }
@@ -32,7 +33,7 @@ const handleSubmit = async () => {
 
 }
 
-const setCurrentContent =  ()=>contentPromise= currentContent.createContent(originalString,title, false)
+const setCurrentContent =  ()=>contentPromise= currentContent.createContent(originalString,title, $currentContent.parsed,false)
 const setCurrentTitle =  ()=> currentContent.setTitle(title)
 
 </script>
@@ -54,6 +55,11 @@ const setCurrentTitle =  ()=> currentContent.setTitle(title)
         {/await}
 
         <button>Submit</button>
+        <button on:click={()=>{
+            currentContent.setDefault()
+            originalString=''
+            title=''}
+        }>+</button>
       </form>
 
 

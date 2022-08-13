@@ -17,8 +17,15 @@ const { subscribe, update, set } = writable<
 export default {
   subscribe,
   setDefault: () => set(defaultContent),
-  createContent: async (content: string, title: string, sync = true) => {
-    const termsArray = splitContent(content);
+  createContent: async (
+    content: string,
+    title: string,
+    terms: Term[] = [],
+    sync = true
+  ) => {
+    let termsArray = splitContent(content);
+
+    termsArray = termsArray.length > terms.length ? termsArray : terms;
 
     const parsed = await Promise.all(
       termsArray.map(async (term) => {

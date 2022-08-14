@@ -2,13 +2,14 @@
 
 
 <script lang='ts'>
-import PreviewContentPage from './PreviewContentPage.svelte'
+import PreviewContentPage from './PreviewContent.svelte'
 import db from '../db'
 import currentContent from '../stores/currentContent'
 import { push } from 'svelte-spa-router';
 export let params={slug:undefined};
 
 const contentPromise = currentContent.getContent(params.slug)
+let loading= false
 
 
 let errors: Record<string, string> = {}
@@ -34,6 +35,13 @@ const handleSubmit = async () => {
 const setCurrentContent =  ()=>currentContent.createContent(originalString,title, $currentContent.parsed,false)
 const setCurrentTitle =  ()=> currentContent.setTitle(title)
 
+const handleDelete = async ()=>{
+    loading=true
+    await currentContent.delete(params.slug)
+    push('/content')
+
+}
+
 </script>
 
     {#await contentPromise}
@@ -45,21 +53,18 @@ const setCurrentTitle =  ()=> currentContent.setTitle(title)
     <input  class:error={errors.title} bind:value={title} on:input="{setCurrentTitle}"/>
     <textarea  class:error={errors.originalString}  bind:value={originalString} on:input="{setCurrentContent}"/>
 
-
     <PreviewContentPage originalString={originalString}/>
-
 
     <button>Submit</button>
   </form>
+  <button class="secondary" aria-busy={loading} on:click={handleDelete}>Delete</button>
    {/await}
 
 
 
+    <style>
 
-
-      <style>
-
-        .error {
-            border: 1px solid red;
-        }
-      </style>
+    .error {
+        border: 1px solid red;
+    }
+    </style>

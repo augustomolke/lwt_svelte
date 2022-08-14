@@ -1,14 +1,24 @@
 <script lang="ts">    
     import type {Term} from "../db";
+    import {createEventDispatcher} from 'svelte'
     export let term: Term;
     export let disabled:boolean = false;
-    export let handleClick: ()=>void = ()=>null;
+
+    const dispatcher = createEventDispatcher()
+    const handleClick = ()=>{
+        dispatcher('toggle')
+    }
+
+    const handleMousedown = ()=>{
+        console.log('mouseDown')
+    }
 
 
 </script>
 
 {#if term.type==='term' }
 <div on:click={handleClick}
+    on:mousedown={handleMousedown}
     class:disabled
     class:good={term.status===2} 
     class:neverSeen={term.status===0}
@@ -28,7 +38,7 @@
 
 .word {
     border:none;
-    padding:0.5rem;
+    padding:0.3rem;
     display: inline-block;
 }
 

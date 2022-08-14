@@ -2,7 +2,7 @@
 
 
 <script lang='ts'>
-import PreviewContentPage from './PreviewContentPage.svelte'
+import PreviewContent from './PreviewContent.svelte'
 import currentContent from '../stores/currentContent'
 import {push} from 'svelte-spa-router'
 
@@ -16,10 +16,15 @@ let loading = false
 const handleSubmit = async () => {
     loading=true
     if(title && originalString){
-        await currentContent.createContent(originalString,title)
-        errors={}
+        const error = await currentContent.createContent(originalString,title)
+        if(error){
+            errors.title='This title is not unique!'
+            loading=false
+        }else{
+            errors={}
+            push(`/content/${$currentContent.id}`)
+        }
 
-        push(`/content/${$currentContent.id}`)
     }
     if(!$currentContent.title){
         errors.title='A title is required!'
@@ -29,6 +34,8 @@ const handleSubmit = async () => {
         errors.content='A content is required!'
     }
 
+    loading=false
+
 }
 
 </script>
@@ -36,11 +43,11 @@ const handleSubmit = async () => {
     <form on:submit|preventDefault={handleSubmit}>
 
         <h1>Teste</h1>
-        <input  class:error={errors.title} bind:value={title} />
-        <textarea  class:error={errors.originalString}  bind:value={originalString}/>
+        <input placeholder="Title" type="text" aria-invalid={errors.title && true} class:error={errors.title} bind:value={title} />
+        <textarea placeholder="Something interesting to read..." type="text" aria-invalid={errors.content && true} class:error={errors.originalString}  bind:value={originalString}/>
 
 
-        <PreviewContentPage originalString={originalString}/>
+        <PreviewContent originalString={originalString}/>
 
 
         <button aria-busy={loading}>Submit</button>
@@ -53,5 +60,7 @@ const handleSubmit = async () => {
 
         .error {
             border: 1px solid red;
+
         }
+
       </style>

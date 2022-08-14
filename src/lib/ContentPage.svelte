@@ -20,13 +20,13 @@
   <button on:click="{()=>push(`/edit/${params.slug}`)}"> Edit</button>
 
   {#await contentPromise}
-    <p aria-busy={true}>Processing...</p>
+    <p aria-busy={true}></p>
   {:then} 
   {#if !$currentContent}
     <p>Content not found</p>
   {:else}
   {#each $currentContent.parsed as term }
-  <Term term={term} handleClick={()=>handleTermClick(term)}/>
+  <Term term={term} on:toggle={()=>handleTermClick(term)}/>
   {/each}
   {/if}
   {/await}

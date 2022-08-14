@@ -15,15 +15,23 @@ export default {
   subscribe,
   parseOriginalString: splitContent,
   setDefault: () => set(defaultContent),
+  delete: async (id: string) => {
+    await db.deleteContent(id);
+    set(defaultContent);
+  },
   createContent: async (
     content: string,
     title: string,
     terms: Term[] = [],
     sync = true
   ) => {
+    let id;
     if (sync) {
-      const id = await db.addContent(title, content, terms);
-
+      try {
+        id = await db.addContent(title, content, terms);
+      } catch (err) {
+        return err;
+      }
       set(await db.getContent(id));
     }
     update((u) => ({ ...u, originalString: content, parsed: terms }));

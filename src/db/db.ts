@@ -58,6 +58,7 @@ export class MySubClassedDexie extends Dexie {
   ) => Promise<string>;
   updateContent: (id: string, newContent: Content) => Promise<number>;
   getContents: () => Promise<Content[]>;
+  deleteContent: (id: string) => Promise<void>;
 
   constructor() {
     super('myDatabase');
@@ -96,47 +97,52 @@ export class MySubClassedDexie extends Dexie {
         });
     };
     this.addContent = async (title, originalString, parsed = []) => {
-      const termsArray = splitContent(originalString);
+      try {
+        const termsArray = splitContent(originalString);
 
-      const generatedParsed = await Promise.all(
-        termsArray.map(async (term) => {
-          const savedTerm = await db.getTerm(term.value);
-          const inputTerm = parsed.find((t) => t.id === term.id);
+        const generatedParsed = await Promise.all(
+          termsArray.map(async (term) => {
+            const savedTerm = await db.getTerm(term.value);
+            const inputTerm = parsed.find((t) => t.id === term.id);
 
-          let outputTerm;
+            let outputTerm;
 
-          if (savedTerm) {
-            outputTerm = {
-              ...term,
-              status: savedTerm.status,
-            };
-          }
+            if (savedTerm) {
+              outputTerm = {
+                ...term,
+                status: savedTerm.status,
+              };
+            }
 
-          if (inputTerm) {
-            outputTerm = {
-              ...term,
-              status: inputTerm.status[0],
-            };
-          }
+            if (inputTerm) {
+              outputTerm = {
+                ...term,
+                status: inputTerm.status[0],
+              };
+            }
 
-          if (outputTerm) {
-            await db.terms.put(outputTerm);
+            if (outputTerm) {
+              await db.terms.put(outputTerm);
 
-            return outputTerm;
-          }
+              return outputTerm;
+            }
 
-          return term;
-        })
-      );
+            return term;
+          })
+        );
 
-      const contentId = await this.content.add({
-        id: urlSlug(title),
-        title,
-        originalString,
-        parsed: generatedParsed,
-      });
-      return contentId;
+        const contentId = await this.content.add({
+          id: urlSlug(title),
+          title,
+          originalString,
+          parsed: generatedParsed,
+        });
+        return contentId;
+      } catch (err) {
+        return err;
+      }
     };
+    this.deleteContent = async (id) => await this.content.delete(id);
     this.getTerm = (id) => {
       return this.terms.get(id);
     };
@@ -147,39 +153,47 @@ export class MySubClassedDexie extends Dexie {
       return this.content.toArray();
     };
     this.updateContent = async (id, newContent) => {
-      const newTerms = await Promise.all(
-        splitContent(newContent.originalString).map(async (term) => {
-          const old = await db.getTerm(term.value);
+      try {
+        const newTerms = await Promise.all(
+          splitContent(newContent.originalString).map(async (term) => {
+            const old = await db.terms.get(term.id);
 
-          if (!old) {
-            this.terms.add(term);
-            return term;
-          }
+            if (!old) {
+              this.terms.add(term);
+              return term;
+            }
 
-          return old;
-        })
-      );
+            return old;
+          })
+        );
 
-      return this.content.update(id, { ...newContent, parsed: newTerms });
+        return this.content.update(id, { ...newContent, parsed: newTerms });
+      } catch (err) {
+        return err;
+      }
     };
     this.getContent = async (id) => {
-      const content = await this.content.get(id);
+      try {
+        const content = await this.content.get(id);
 
-      const updatedTerms = await Promise.all(
-        content.parsed.map(async (term) => {
-          const updated = await this.getTerm(term.id);
-          if (updated) {
-            return updated;
-          }
-          return term;
-        })
-      );
+        const updatedTerms = await Promise.all(
+          content.parsed.map(async (term) => {
+            const updated = await this.terms.get(term.id);
+            if (updated) {
+              return updated;
+            }
+            return term;
+          })
+        );
 
-      const updatedContent = { ...content, parsed: updatedTerms };
+        const updatedContent = { ...content, parsed: updatedTerms };
 
-      await this.updateContent(content.id, updatedContent);
+        await this.updateContent(content.id, updatedContent);
 
-      return updatedContent;
+        return updatedContent;
+      } catch (err) {
+        return err;
+      }
     };
   }
 }

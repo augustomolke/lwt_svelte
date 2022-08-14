@@ -1,28 +1,14 @@
 <script lang="ts">
-import AddContentForm from "./lib/AddContentForm.svelte";
-import ReadContent from "./lib/ReadContent.svelte";
-import currentState from './stores/currentState'
 
+import Router, { link } from "svelte-spa-router";
+  import { routes } from "./routes.js";
 
 </script>
 
 <main class="container">
-
-    <button on:click={()=>
-        currentState.setAction('read')
-        }>Read</button>
-    <button on:click={()=>
-        currentState.setAction('input')
-    }> Create or Edit text</button>
-
-
-
-    {#if $currentState.action === 'read'}
-    <ReadContent/>
-    {:else}
-    <AddContentForm/>
-    {/if}
-
+    <a role='button' use:link href='/write'>Create or Edit</a>
+    <a role='button' use:link href='/content'>Read</a>
+    <Router {routes}/>
 </main>
 
 

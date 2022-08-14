@@ -3,6 +3,9 @@
     import type { Term as ITerm} from '../db'
     import currentContent from '../stores/currentContent';
     export let handleTermClick: (term:ITerm)=>void;
+    export let params;
+
+    console.log(params.slug)
 
 
 </script>

@@ -3,6 +3,7 @@
     import type { Term as ITerm} from '../db'
     import { newStatus } from '../utils/termStatus';
     import currentContent from '../stores/currentContent/currentContent';
+    import { push } from 'svelte-spa-router';
     export let params={slug:undefined};
 
     const contentPromise = currentContent.getContent(params.slug)
@@ -15,6 +16,8 @@
 </script>
 
 <div class='container-fluid'>
+
+  <button on:click="{()=>push(`/edit/${params.slug}`)}"> Edit</button>
 
   {#await contentPromise}
     <p aria-busy={true}>Processing...</p>

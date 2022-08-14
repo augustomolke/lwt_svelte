@@ -146,8 +146,21 @@ export class MySubClassedDexie extends Dexie {
     this.getContents = () => {
       return this.content.toArray();
     };
-    this.updateContent = (id, newContent) => {
-      return this.content.update(id, newContent);
+    this.updateContent = async (id, newContent) => {
+      const newTerms = await Promise.all(
+        splitContent(newContent.originalString).map(async (term) => {
+          const old = await db.getTerm(term.value);
+
+          if (!old) {
+            this.terms.add(term);
+            return term;
+          }
+
+          return old;
+        })
+      );
+
+      return this.content.update(id, { ...newContent, parsed: newTerms });
     };
     this.getContent = async (id) => {
       const content = await this.content.get(id);

@@ -5,6 +5,10 @@
 import PreviewContentPage from './PreviewContentPage.svelte'
 import db from '../db'
 import currentContent from '../stores/currentContent'
+import { push } from 'svelte-spa-router';
+export let params={slug:undefined};
+
+const contentPromise = currentContent.getContent(params.slug)
 
 
 let errors: Record<string, string> = {}
@@ -13,12 +17,9 @@ let {originalString, title} = $currentContent
 
 const handleSubmit = async () => {
     if($currentContent.title && $currentContent.originalString){
-        if($currentContent.id){
-            db.updateContent($currentContent.id, $currentContent)
-        }else{
-        await currentContent.createContent(originalString,title,$currentContent.parsed)
-        }
+        await db.updateContent($currentContent.id, $currentContent)
         errors={}
+        push(`/content/${$currentContent.id}`)
     }
     if(!$currentContent.title){
         errors.title='A title is required!'
@@ -35,23 +36,24 @@ const setCurrentTitle =  ()=> currentContent.setTitle(title)
 
 </script>
 
+    {#await contentPromise}
+        <p aria-busy={true}>Processing...</p>
+    {:then} 
     <form on:submit|preventDefault={handleSubmit}>
 
-        <h1>Teste</h1>
-        <input  class:error={errors.title} bind:value={title} on:input="{setCurrentTitle}"/>
-        <textarea  class:error={errors.originalString}  bind:value={originalString} on:input="{setCurrentContent}"/>
+    <h1>Teste</h1>
+    <input  class:error={errors.title} bind:value={title} on:input="{setCurrentTitle}"/>
+    <textarea  class:error={errors.originalString}  bind:value={originalString} on:input="{setCurrentContent}"/>
 
 
-        <PreviewContentPage />
+    <PreviewContentPage originalString={originalString}/>
 
 
-        <button>Submit</button>
-        <button on:click={()=>{
-            currentContent.setDefault()
-            originalString=''
-            title=''}
-        }>+</button>
-      </form>
+    <button>Submit</button>
+  </form>
+   {/await}
+
+
 
 
 

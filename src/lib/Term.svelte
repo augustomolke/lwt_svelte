@@ -1,20 +1,22 @@
 <script lang="ts">    
     import type {Term} from "../db";
     export let term: Term;
-    export let handleClick: ()=>void;
+    export let disabled:boolean = false;
+    export let handleClick: ()=>void = ()=>null;
 
 
 </script>
 
-{#if term.type==='term'}
-<div on:click={handleClick} 
+{#if term.type==='term' }
+<div on:click={handleClick}
+    class:disabled
     class:good={term.status===2} 
     class:neverSeen={term.status===0}
     class:regular={term.status===1}
     class:proficient={term.status===3}
-    role="button" 
+    role={ disabled ? "": "button"} 
     class="secondary outline word">{term.value}</div>
-    {:else if term.type==='symbol'}
+    {:else if term.type==='symbol' }
 <p>{term.value}</p>
 {/if}
 
@@ -26,9 +28,13 @@
 
 .word {
     border:none;
-    padding:0.5rem
+    padding:0.5rem;
+    display: inline-block;
 }
 
+.disabled {
+    background-color: transparent !important;
+}
 .neverSeen {
     background-color: pink;
 }

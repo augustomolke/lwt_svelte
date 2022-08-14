@@ -1,9 +1,11 @@
 import AddContentForm from './lib/AddContentForm.svelte';
+import EditContentPage from './lib/EditContentPage.svelte';
 import ReadContent from './lib/ReadContent.svelte';
-import Content from './lib/Content.svelte';
+import Content from './lib/ContentPage.svelte';
 
 export const routes = {
-  '/write': AddContentForm,
+  '/edit/:slug': EditContentPage,
+  '/create': AddContentForm,
   '/content': ReadContent,
   '/content/:slug': Content,
 };

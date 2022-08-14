@@ -1,9 +1,10 @@
 // db.ts
 import Dexie from 'dexie';
 import type { Table } from 'dexie';
+import urlSlug from 'url-slug';
 
 export interface Content {
-  id?: number;
+  id?: string;
   title: string;
   originalString: string;
   parsed: Term[];
@@ -42,26 +43,26 @@ export const splitContent = (originalContent: string): Term[] => {
 export class MySubClassedDexie extends Dexie {
   // 'friends' is added by dexie when declaring the stores()
   // We just tell the typing system this is the case
-  content!: Table<Content, number>;
+  content!: Table<Content, string>;
   terms!: Table<Term, string>;
   addTerm: (term: string) => Promise<string>;
   updateTerm: (term: Term) => Promise<string>;
   getTerm: (unformatted: string) => Promise<Term>;
   getTerms: (id: string[]) => Promise<Term[]>;
-  getContent: (id: number) => Promise<Content>;
+  getContent: (id: string) => Promise<Content>;
   bulkAddTerm: (terms: Omit<Term, 'id' | 'type'>[]) => Promise<string[]>;
   addContent: (
     title: string,
     originalString: string,
     parsed: Term[]
-  ) => Promise<number>;
-  updateContent: (id: number, newContent: Content) => Promise<number>;
+  ) => Promise<string>;
+  updateContent: (id: string, newContent: Content) => Promise<number>;
   getContents: () => Promise<Content[]>;
 
   constructor() {
     super('myDatabase');
     this.version(1).stores({
-      content: '++id, title', // Primary key and indexed props
+      content: 'id, title', // Primary key and indexed props
       terms: 'id, term, status',
     });
     this.addTerm = async (value) => {
@@ -94,16 +95,50 @@ export class MySubClassedDexie extends Dexie {
           });
         });
     };
-    this.addContent = async (title, originalString, parsed) => {
+    this.addContent = async (title, originalString, parsed = []) => {
+      const termsArray = splitContent(originalString);
+
+      const generatedParsed = await Promise.all(
+        termsArray.map(async (term) => {
+          const savedTerm = await db.getTerm(term.value);
+          const inputTerm = parsed.find((t) => t.id === term.id);
+
+          let outputTerm;
+
+          if (savedTerm) {
+            outputTerm = {
+              ...term,
+              status: savedTerm.status,
+            };
+          }
+
+          if (inputTerm) {
+            outputTerm = {
+              ...term,
+              status: inputTerm.status[0],
+            };
+          }
+
+          if (outputTerm) {
+            await db.terms.put(outputTerm);
+
+            return outputTerm;
+          }
+
+          return term;
+        })
+      );
+
       const contentId = await this.content.add({
+        id: urlSlug(title),
         title,
         originalString,
-        parsed,
+        parsed: generatedParsed,
       });
       return contentId;
     };
-    this.getTerm = (unformatted) => {
-      return this.terms.get(formatTerm(unformatted));
+    this.getTerm = (id) => {
+      return this.terms.get(id);
     };
     this.getTerms = (ids) => {
       return this.terms.bulkGet(ids);
@@ -111,11 +146,27 @@ export class MySubClassedDexie extends Dexie {
     this.getContents = () => {
       return this.content.toArray();
     };
-    this.getContent = (id) => {
-      return this.content.get(id);
-    };
     this.updateContent = (id, newContent) => {
       return this.content.update(id, newContent);
+    };
+    this.getContent = async (id) => {
+      const content = await this.content.get(id);
+
+      const updatedTerms = await Promise.all(
+        content.parsed.map(async (term) => {
+          const updated = await this.getTerm(term.id);
+          if (updated) {
+            return updated;
+          }
+          return term;
+        })
+      );
+
+      const updatedContent = { ...content, parsed: updatedTerms };
+
+      await this.updateContent(content.id, updatedContent);
+
+      return updatedContent;
     };
   }
 }

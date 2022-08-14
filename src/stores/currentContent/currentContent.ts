@@ -1,21 +1,19 @@
 import { writable } from 'svelte/store';
-import db, { splitContent, type Term } from '../../db';
+import db, { type Term, splitContent } from '../../db';
 import type { Content } from '../../db';
 
-const defaultContent: Content & { promise?: Promise<Content> } = {
+const defaultContent: Content = {
   id: null,
   originalString: '',
   title: '',
   parsed: [],
-  promise: null,
 };
 
-const { subscribe, update, set } = writable<
-  Content & { promise?: Promise<Content> }
->(defaultContent);
+const { subscribe, update, set } = writable<Content>(defaultContent);
 
 export default {
   subscribe,
+  parseOriginalString: splitContent,
   setDefault: () => set(defaultContent),
   createContent: async (
     content: string,
@@ -23,32 +21,14 @@ export default {
     terms: Term[] = [],
     sync = true
   ) => {
-    let termsArray = splitContent(content);
-
-    termsArray = termsArray.length > terms.length ? termsArray : terms;
-
-    const parsed = await Promise.all(
-      termsArray.map(async (term) => {
-        const savedTerm = await db.getTerm(term.value);
-        if (savedTerm) {
-          return {
-            ...term,
-            status: savedTerm.status,
-          };
-        }
-        return term;
-      })
-    );
-
     if (sync) {
-      const id = await db.addContent(title, content, parsed);
-      await db.bulkAddTerm(parsed);
+      const id = await db.addContent(title, content, terms);
 
       set(await db.getContent(id));
     }
-    update((u) => ({ ...u, originalString: content, parsed }));
+    update((u) => ({ ...u, originalString: content, parsed: terms }));
   },
-  setContent: async (contentId: number) => {
+  setContent: async (contentId: string) => {
     const content = await db.getContent(contentId);
 
     if (content) {
@@ -62,30 +42,40 @@ export default {
   setTitle: (title: string) => {
     update((u) => ({ ...u, title }));
   },
-  setPromise: (promise) => update((c) => ({ ...c, promise })),
-  updateTermStatus: async (
-    term: string,
-    status: number,
-    sync = false
-  ): Promise<void> => {
-    const old = await db.getTerm(term);
-    const newTerm = old ? { ...old, status } : false;
-
-    if (sync && newTerm) {
-      await db.updateTerm(newTerm);
+  getContent: async (slug) => {
+    if (!slug) {
+      return;
     }
+    const content = await db.getContent(slug);
+    set(content);
+  },
+  updateOrCreateTerm: async (
+    term: Term,
+    patch: Partial<Term>,
+    sync = true
+  ): Promise<Term> => {
+    let newTerm;
+    if (sync) {
+      let old = await db.getTerm(term.id);
+      newTerm = old ? { ...old, ...patch } : { ...term, ...patch };
 
+      await db.updateTerm(newTerm);
+    } else {
+      newTerm = term;
+    }
     update((current) => {
       const updatedParsed = current.parsed.map((c) => {
-        if (c.value === term) {
-          return { ...c, status };
+        if (c.id === term.id) {
+          return { ...c, ...newTerm };
         }
         return c;
       });
 
-      const newvalue = { ...current, parsed: updatedParsed };
+      const newContent = { ...current, parsed: updatedParsed };
 
-      return newvalue;
+      return newContent;
     });
+
+    return newTerm;
   },
 };

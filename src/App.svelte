@@ -6,7 +6,7 @@ import Router, { link } from "svelte-spa-router";
 </script>
 
 <main class="container">
-    <a role='button' use:link href='/write'>Create or Edit</a>
+    <a role='button' use:link href='/create'>Create</a>
     <a role='button' use:link href='/content'>Read</a>
     <Router {routes}/>
 </main>

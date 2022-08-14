@@ -2,26 +2,24 @@
 
 
 <script lang='ts'>
-import Content from './Content.svelte'
-import db from '../db'
+import PreviewContentPage from './PreviewContentPage.svelte'
 import currentContent from '../stores/currentContent'
-import {newStatus} from '../utils/termStatus'
+import {push} from 'svelte-spa-router'
 
 
 let errors: Record<string, string> = {}
-let {originalString, title} = $currentContent
+let originalString='' 
+let title=''
+let loading = false
 
-
-let contentPromise;
 
 const handleSubmit = async () => {
-    if($currentContent.title && $currentContent.originalString){
-        if($currentContent.id){
-            db.updateContent($currentContent.id, $currentContent)
-        }else{
-        contentPromise = currentContent.createContent(originalString,title,$currentContent.parsed)
-        }
+    loading=true
+    if(title && originalString){
+        await currentContent.createContent(originalString,title)
         errors={}
+
+        push(`/content/${$currentContent.id}`)
     }
     if(!$currentContent.title){
         errors.title='A title is required!'
@@ -33,33 +31,20 @@ const handleSubmit = async () => {
 
 }
 
-const setCurrentContent =  ()=>contentPromise= currentContent.createContent(originalString,title, $currentContent.parsed,false)
-const setCurrentTitle =  ()=> currentContent.setTitle(title)
-
 </script>
 
     <form on:submit|preventDefault={handleSubmit}>
 
         <h1>Teste</h1>
-        <input  class:error={errors.title} bind:value={title} on:input="{setCurrentTitle}"/>
-        <textarea  class:error={errors.originalString}  bind:value={originalString} on:input="{setCurrentContent}"/>
+        <input  class:error={errors.title} bind:value={title} />
+        <textarea  class:error={errors.originalString}  bind:value={originalString}/>
 
-        {#await contentPromise}
-        <p> Processing... </p>
-        {:then}
-        <Content handleTermClick={(term)=>currentContent.updateTermStatus(term.value, newStatus(term.status))}/>
-        {:catch error}
 
-        <p> Something went wrong...{error}</p>
+        <PreviewContentPage originalString={originalString}/>
 
-        {/await}
 
-        <button>Submit</button>
-        <button on:click={()=>{
-            currentContent.setDefault()
-            originalString=''
-            title=''}
-        }>+</button>
+        <button aria-busy={loading}>Submit</button>
+
       </form>
 
 

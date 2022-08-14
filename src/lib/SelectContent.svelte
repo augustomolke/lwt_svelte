@@ -1,6 +1,7 @@
 <script lang="ts">
     import currentContent from '../stores/currentContent'
     import db from '../db'
+    import { link } from "svelte-spa-router";
 
     const contentsPromise = db.getContents()
 
@@ -12,13 +13,12 @@
 <section>
     {#await contentsPromise}
 
-    <p>Getting your texts...</p>
+    <p aria-busy={true}>Getting your texts...</p>
         
     {:then contents}
 
     {#each contents as content}
-        <div role="button"  on:click="{ ()=>currentContent.setPromise(currentContent.setContent(content.id))
-         }">{content.title}</div>
+        <a use:link href={`/content/${content.id}`} role="button">{content.title}</a>
     {/each}
 
     {:catch error}

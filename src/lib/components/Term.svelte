@@ -43,9 +43,10 @@
     opacity: 0.5;
     position: relative;
     transition: transform 0.2s, opacity 0.1s;
+    font-style: italic;
 }
 
-.word:hover:not(.proficient) {
+.word:hover:not(.proficient):not(.disabled) {
         transform: scale(1.5);
         opacity: 1;
         z-index: 1;

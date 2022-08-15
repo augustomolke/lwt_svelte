@@ -1,17 +1,14 @@
 <script lang="ts">
 import bd from '../../db';
 import { link } from "svelte-spa-router";
+import debounce from 'lodash/debounce'
 
-let timer;
 let value;
 let termsPromise = bd.getTerms();
 
-const debounce = () => {
-		clearTimeout(timer);
-		timer = setTimeout(() => {
+const debounced = debounce(() => {
 			termsPromise = bd.getTerms(undefined,{value});
-		}, 500);
-	}
+		},500)
 
 const init=(el)=>{
     el.focus()
@@ -26,7 +23,7 @@ const init=(el)=>{
     
 {:then terms}
 
-<input type="search" use:init bind:value on:keyup|preventDefault="{debounce}"/>
+<input type="search" use:init bind:value on:keyup|preventDefault="{debounced}"/>
 
 {#each terms as term (term.id)}
 <details>

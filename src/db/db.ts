@@ -2,12 +2,15 @@
 import Dexie from 'dexie';
 import type { Table } from 'dexie';
 import urlSlug from 'url-slug';
+import moment from 'moment';
 
 export interface Content {
   id?: string;
   title: string;
   originalString: string;
   parsed: Term[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Term {
@@ -15,6 +18,11 @@ export interface Term {
   type: 'term' | 'symbol';
   value: string;
   status: number;
+  sources: string[];
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+  reviewedAt: string;
 }
 
 const REGEX = /([`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~.(\r\n|\r|\n)]+)/g;
@@ -26,7 +34,7 @@ const getType = (value: string): 'symbol' | 'term' => {
 export const formatTerm = (term: string): string =>
   term.replace(' ', '').toUpperCase();
 
-export const splitContent = (originalContent: string): Term[] => {
+export const splitContent = (originalContent: string, slug: string): Term[] => {
   const terms = originalContent
     .replaceAll(REGEX, ' $1 ')
     .split(/ +/)
@@ -34,7 +42,17 @@ export const splitContent = (originalContent: string): Term[] => {
     .map((t) => {
       const type = getType(t);
 
-      return { id: formatTerm(t), type, value: t, status: 0 };
+      return {
+        id: formatTerm(t),
+        type,
+        value: t,
+        status: 0,
+        sources: [slug],
+        notes: '',
+        createdAt: moment().toISOString(),
+        updatedAt: moment().toISOString(),
+        reviewedAt: moment().toISOString(),
+      };
     });
 
   return terms;
@@ -69,8 +87,8 @@ export class MySubClassedDexie extends Dexie {
   constructor() {
     super('myDatabase');
     this.version(1).stores({
-      content: 'id, title', // Primary key and indexed props
-      terms: 'id, value, status, type',
+      content: 'id, title, updatedAt', // Primary key and indexed props
+      terms: 'id, value, status, type, *sources, createdAt, reviewedAt',
     });
     this.addTerm = async (value) => {
       const type: Term['type'] = value.match(
@@ -83,6 +101,11 @@ export class MySubClassedDexie extends Dexie {
         value,
         status: 0,
         type,
+        sources: [],
+        notes: '',
+        createdAt: moment().toISOString(),
+        updatedAt: moment().toISOString(),
+        reviewedAt: moment().toISOString(),
       });
     };
     this.updateTerm = async (term: Term) => {
@@ -93,6 +116,9 @@ export class MySubClassedDexie extends Dexie {
         ...t,
         id: formatTerm(t.value),
         type: getType(t.value),
+        createdAt: moment().toISOString(),
+        updatedAt: moment().toISOString(),
+        reviewedAt: moment().toISOString(),
       }));
       return await this.terms
         .bulkPut(completeTerms, { allKeys: true })
@@ -104,11 +130,12 @@ export class MySubClassedDexie extends Dexie {
     };
     this.addContent = async (title, originalString, parsed = []) => {
       try {
-        const termsArray = splitContent(originalString);
+        const slug = urlSlug(title);
+        const termsArray = splitContent(originalString, slug);
 
         const generatedParsed = await Promise.all(
           termsArray.map(async (term) => {
-            const savedTerm = await db.getTerm(term.value);
+            const savedTerm = await db.getTerm(term.id);
             const inputTerm = parsed.find((t) => t.id === term.id);
 
             let outputTerm;
@@ -117,6 +144,8 @@ export class MySubClassedDexie extends Dexie {
               outputTerm = {
                 ...term,
                 status: savedTerm.status,
+                sources: [...savedTerm.sources, ...term.sources],
+                updatedAt: moment().toISOString(),
               };
             }
 
@@ -124,6 +153,11 @@ export class MySubClassedDexie extends Dexie {
               outputTerm = {
                 ...term,
                 status: inputTerm.status[0],
+                updatedAt: moment().toISOString(),
+                sources: [
+                  ...(savedTerm ? savedTerm.sources : []),
+                  ...term.sources,
+                ],
               };
             }
 
@@ -138,10 +172,12 @@ export class MySubClassedDexie extends Dexie {
         );
 
         const contentId = await this.content.add({
-          id: urlSlug(title),
+          id: slug,
           title,
           originalString,
           parsed: generatedParsed,
+          createdAt: moment().toISOString(),
+          updatedAt: moment().toISOString(),
         });
         return contentId;
       } catch (err) {
@@ -203,19 +239,25 @@ export class MySubClassedDexie extends Dexie {
     this.updateContent = async (id, newContent) => {
       try {
         const newTerms = await Promise.all(
-          splitContent(newContent.originalString).map(async (term) => {
-            const old = await db.terms.get(term.id);
+          splitContent(newContent.originalString, newContent.id).map(
+            async (term) => {
+              const old = await db.terms.get(term.id);
 
-            if (!old) {
-              this.terms.add(term);
-              return term;
+              if (!old) {
+                this.terms.add(term);
+                return term;
+              }
+
+              return old;
             }
-
-            return old;
-          })
+          )
         );
 
-        return this.content.update(id, { ...newContent, parsed: newTerms });
+        return this.content.update(id, {
+          ...newContent,
+          parsed: newTerms,
+          updatedAt: moment().toISOString(),
+        });
       } catch (err) {
         return err;
       }

@@ -3,7 +3,21 @@
     import db from '../../db'
     import { link } from "svelte-spa-router";
 
-    const contentsPromise = db.getContents()
+    let contentsPromise = db.getContents()
+
+    let timer;
+    let value;
+
+    const debounce = () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                contentsPromise = db.getContents(undefined,{title:value});
+            }, 500);
+        }
+
+    const init=(el)=>{
+        el.focus()
+    }
 
 
 </script>
@@ -15,8 +29,7 @@
     {#await contentsPromise}
         <p aria-busy={true}></p>
     {:then contents}
-        <input type="search"id="search" name="search" placeholder="Search"/>
-
+        <input type="search"id="search" name="search" placeholder="Search" use:init bind:value on:keyup="{debounce}"/>
         <div class="grid">
 
         {#each contents as content}

@@ -47,8 +47,11 @@ export class MySubClassedDexie extends Dexie {
   terms!: Table<Term, string>;
   addTerm: (term: string) => Promise<string>;
   updateTerm: (term: Term) => Promise<string>;
-  getTerm: (unformatted: string) => Promise<Term>;
-  getTerms: (id: string[]) => Promise<Term[]>;
+  getTerm: (id: string) => Promise<Term>;
+  getTerms: (
+    id?: string[],
+    filters?: { value?: string; status?: number }
+  ) => Promise<Term[]>;
   getContent: (id: string) => Promise<Content>;
   bulkAddTerm: (terms: Omit<Term, 'id' | 'type'>[]) => Promise<string[]>;
   addContent: (
@@ -57,14 +60,17 @@ export class MySubClassedDexie extends Dexie {
     parsed: Term[]
   ) => Promise<string>;
   updateContent: (id: string, newContent: Content) => Promise<number>;
-  getContents: () => Promise<Content[]>;
+  getContents: (
+    id?: string[],
+    filters?: { title?: string }
+  ) => Promise<Content[]>;
   deleteContent: (id: string) => Promise<void>;
 
   constructor() {
     super('myDatabase');
     this.version(1).stores({
       content: 'id, title', // Primary key and indexed props
-      terms: 'id, term, status',
+      terms: 'id, value, status, type',
     });
     this.addTerm = async (value) => {
       const type: Term['type'] = value.match(
@@ -146,11 +152,53 @@ export class MySubClassedDexie extends Dexie {
     this.getTerm = (id) => {
       return this.terms.get(id);
     };
-    this.getTerms = (ids) => {
-      return this.terms.bulkGet(ids);
+    this.getTerms = (
+      ids,
+      filters = { value: undefined, status: undefined }
+    ) => {
+      if (ids && ids.length > 0) {
+        return this.terms.bulkGet(ids);
+      }
+
+      return this.terms
+        .filter((term) => {
+          if (term.type === 'symbol') return false;
+
+          let bool = true;
+
+          if (
+            filters.value &&
+            !term.value.toLowerCase().includes(filters.value.toLowerCase())
+          ) {
+            bool = false;
+          }
+
+          if (filters.status && term.status !== filters.status) {
+            bool = false;
+          }
+
+          return bool;
+        })
+        .toArray();
     };
-    this.getContents = () => {
-      return this.content.toArray();
+    this.getContents = (ids, filters = { title: undefined }) => {
+      if (ids && ids.length > 0) {
+        return this.content.bulkGet(ids);
+      }
+
+      return this.content
+        .filter((content) => {
+          let bool = true;
+
+          if (
+            filters.title &&
+            !content.title.toLowerCase().includes(filters.title.toLowerCase())
+          ) {
+            bool = false;
+          }
+          return bool;
+        })
+        .toArray();
     };
     this.updateContent = async (id, newContent) => {
       try {

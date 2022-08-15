@@ -37,8 +37,8 @@ $: style = Object.keys($configs.colors).reduce((acc, current) => {
       <ul>
         <li><a use:link href="/create">Create</a></li>
         <li><a use:link href="/content">Read</a></li>
+        <li><a use:link href="/terms">Terms</a></li>
         <li><a use:link href="/settings">Settings</a></li>
-
       </ul>
     </nav>
 

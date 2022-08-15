@@ -1,6 +1,6 @@
 <script lang="ts">
-    import currentContent from '../stores/currentContent'
-    import db from '../db'
+    import currentContent from '../../stores/currentContent'
+    import db from '../../db'
     import { link } from "svelte-spa-router";
 
     const contentsPromise = db.getContents()

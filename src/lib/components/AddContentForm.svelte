@@ -3,7 +3,7 @@
 
 <script lang='ts'>
 import PreviewContent from './PreviewContent.svelte'
-import currentContent from '../stores/currentContent'
+import currentContent from '../../stores/currentContent'
 import {push} from 'svelte-spa-router'
 
 
@@ -42,7 +42,6 @@ const handleSubmit = async () => {
 
     <form on:submit|preventDefault={handleSubmit}>
 
-        <h1>Teste</h1>
         <input placeholder="Title" type="text" aria-invalid={errors.title && true} class:error={errors.title} bind:value={title} />
         <textarea placeholder="Something interesting to read..." type="text" aria-invalid={errors.content && true} class:error={errors.originalString}  bind:value={originalString}/>
 

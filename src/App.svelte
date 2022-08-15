@@ -2,17 +2,20 @@
 
 import Router, { link } from "svelte-spa-router";
 import { routes } from "./routes.js";
-import theme from './stores/theme'
+import configs from './stores/configs'
 
 
-theme.applyTheme()
+configs.applyTheme()
+
+$: style = Object.keys($configs.colors).reduce((acc, current) => {
+      return acc + `--${current}:${$configs.colors[current]};`;
+    },'');
 
 </script>
 
 
-<main class="container" style="--value:black" >
+<main class="container" style="{style}" >
    
-
     <nav>
       <ul>
         <li><strong>LWT</strong></li>
@@ -31,7 +34,7 @@ theme.applyTheme()
 <style>
 
 main {
-  /* --primary: hsl(195deg, 85%, 41%);
+  --primary: var(--primary);
   --primary-hover: hsl(195deg, 90%, 32%);
   --primary-focus: rgba(16, 149, 193, 0.125);
   --primary-inverse: #fff;
@@ -42,7 +45,7 @@ main {
   --contrast: hsl(205deg, 30%, 15%);
   --contrast-hover: #000;
   --contrast-focus: rgba(89, 107, 120, 0.125);
-  --contrast-inverse: #fff; */
+  --contrast-inverse: #fff;
 
 }
 

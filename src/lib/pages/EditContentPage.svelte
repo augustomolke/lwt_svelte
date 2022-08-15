@@ -2,9 +2,9 @@
 
 
 <script lang='ts'>
-import PreviewContentPage from './PreviewContent.svelte'
-import db from '../db'
-import currentContent from '../stores/currentContent'
+import PreviewContentPage from '../components/PreviewContent.svelte'
+import db from '../../db'
+import currentContent from '../../stores/currentContent'
 import { push } from 'svelte-spa-router';
 export let params={slug:undefined};
 

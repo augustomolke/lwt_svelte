@@ -1,6 +1,6 @@
 <script lang='ts'>
     import Term from './Term.svelte'
-    import currentContent from '../stores/currentContent/currentContent';
+    import currentContent from '../../stores/currentContent/currentContent';
     export let originalString = ''
 
 

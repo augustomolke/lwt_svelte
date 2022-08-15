@@ -40,7 +40,16 @@
     border:none;
     padding:0.3rem;
     display: inline-block;
+    opacity: 0.5;
+    position: relative;
+    transition: transform 0.2s, opacity 0.1s;
 }
+
+.word:hover:not(.proficient) {
+        transform: scale(1.5);
+        opacity: 1;
+        z-index: 1;
+    }
 
 .disabled {
     background-color: transparent !important;

@@ -12,7 +12,11 @@ interface Colors {
   // ['primary-focus']?: string;
   ['primary-inverse']?: string;
 }
-const defaultTheme: AvailableThemes = 'light';
+const defaultTheme: AvailableThemes = window.matchMedia(
+  '(prefers-color-scheme: dark)'
+)
+  ? 'dark'
+  : 'light';
 
 const defaultPrimary = '#0f95c1';
 const defaultHover = '#06769a';

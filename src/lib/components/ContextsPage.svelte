@@ -10,14 +10,16 @@ const getQuote = (originalString:string, term:string): string =>{
     const content = originalString.toLowerCase()
     const word = term.toLowerCase()
 
-    const charAmt = 150
+    const charAmt = 120
 
     const index = content.indexOf(word)
     const start = Math.max(index-charAmt,0)
     const end = Math.min(index+charAmt, originalString.length)
 
+    const regex = RegExp(`(${term})`,'gi')
 
-    return `...${originalString.slice(start, end)}...`
+
+    return `...${originalString.slice(start, end)}...`.replaceAll(regex, `<strong>${term.toUpperCase()}</strong>`)
 
 }
 
@@ -35,7 +37,7 @@ const getQuote = (originalString:string, term:string): string =>{
  <a use:link href='/content/{content.id}'>
     
     <blockquote>
-        {getQuote(content.originalString, term.value)}
+        {@html getQuote(content.originalString, term.value)}
         <footer>
             <cite> {content.title} </cite>
         </footer>

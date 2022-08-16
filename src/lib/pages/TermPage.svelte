@@ -2,12 +2,14 @@
 import db from '../../db'
 import ContextsPage from '../components/ContextsPage.svelte';
 import EditTermForm from '../components/EditTermForm.svelte'
+import Term from '../components/Term.svelte';
 export let params={id:undefined}
 let loading=false
 
 const termPromise = db.getTerm(params.id)
 
 </script>
+
 
 {#await termPromise}
     <p aria-busy="true"/>
@@ -23,5 +25,7 @@ const termPromise = db.getTerm(params.id)
     <footer> bla bla</footer>
 
 </article>
+<iframe src={`https://www.linguee.com/english-portuguese/translation/${term.value}.html`} title={term.value}/>
+
 {/await}
 

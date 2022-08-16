@@ -7,11 +7,22 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "prepare": "npm run smui-theme-light && npm run smui-theme-dark",
+    "smui-theme-light": "smui-theme compile smui.css -i src/theme",
+    "smui-theme-dark": "smui-theme compile smui-dark.css -i src/theme/dark"
   },
   "devDependencies": {
+    "@smui/button": "^6.0.0",
+    "@smui/card": "^6.0.0",
+    "@smui/fab": "^6.0.0",
+    "@smui/icon-button": "^6.0.0",
+    "@smui/tab": "^6.0.0",
+    "@smui/tab-bar": "^6.0.0",
+    "@smui/top-app-bar": "^6.0.0",
     "@sveltejs/vite-plugin-svelte": "^1.0.1",
     "@tsconfig/svelte": "^3.0.0",
+    "smui-theme": "^6.0.0",
     "svelte": "^3.49.0",
     "svelte-check": "^2.8.0",
     "svelte-preprocess": "^4.10.7",
@@ -20,13 +31,10 @@
     "vite": "^3.0.6"
   },
   "dependencies": {
-    "autoprefixer": "^10.4.8",
-    "daisyui": "^2.24.0",
     "dexie": "^3.2.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "svelte-spa-router": "^3.3.0",
-    "tailwindcss": "^3.1.8",
     "url-slug": "^3.0.4"
   }
 }

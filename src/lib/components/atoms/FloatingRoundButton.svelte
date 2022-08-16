@@ -1,8 +1,19 @@
 <script lang="ts">
-    export let onClick;
-
+  import Fab, { Icon } from '@smui/fab';
+  export let onClick;
 </script>
 
-<button class=" z-30 btn btn-circle fixed right-6 bottom-20" on:click="{onClick}">
-    <slot/>
-</button>
+<div class="floating-button">
+<Fab  color="primary" on:click={onClick}>
+        <Icon class="material-icons">edit</Icon>
+</Fab>
+</div>
+
+<style>
+  .floating-button {
+    position: fixed !important;
+    z-index: 2;
+    right: 25px;
+   bottom: 25px;
+  }
+</style>

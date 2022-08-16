@@ -8,21 +8,20 @@ let termsPromise = bd.getTerms();
 </script>
 
 
-<section class="gap-5 flex flex-col items-center">
+<section class="flex flex-col h-screen gap-5">
+<div class='flex justify-center'>
     <Input onChange={(e) => {
         termsPromise = bd.getTerms(undefined,{value: e.target.value});
       }} debounceWaitingTime={500}/>  
+</div>
+    <div class="flex flex-col gap-2 grow">    
+      {#await termsPromise}
+        <progress class="progress w-56 m-auto"></progress>
+      {:then terms}
     
-    {#await termsPromise}
-    <progress class="progress w-56 m-auto"></progress>
-        
-    {:then terms}
-    <div class="flex flex-col gap-2 min-w-full">
-    {#each terms as term (term.id)}
-      <TermCard term={term}/>
-    {/each}
+      {#each terms as term (term.id)}
+        <TermCard term={term}/>
+      {/each}
+      {/await}
     </div>
-        
-    {/await}
-
 </section>

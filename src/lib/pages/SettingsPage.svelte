@@ -19,8 +19,6 @@ const handleColorPick = (key, value)=>{
     configs.applyColors({[key]:value})
 }
 
-$: console.log(primaryInverse)
-
 </script>
 
 

@@ -1,8 +1,7 @@
 <script lang="ts">
 import db from '../../db'
-import ContextsPage from '../components/ContextsPage.svelte';
-import EditTermForm from '../components/EditTermForm.svelte'
-import Term from '../components/Term.svelte';
+import TermsContextList from '../components/organisms/TermsContextList.svelte';
+import EditTermForm from '../components/organisms/EditTermForm.svelte'
 export let params={id:undefined}
 let loading=false
 
@@ -12,11 +11,11 @@ const termPromise = db.getTerm(params.id)
 
 
 {#await termPromise}
-    <p aria-busy="true"/>
+    <progress class="progress w-56"></progress>
 {:then term} 
 <article>
     <header>{term.value}</header>
-    <ContextsPage term={term}/>
+    <TermsContextList term={term}/>
     <EditTermForm loading={loading} term={term} on:onSave="{async (e)=>{
     loading = true
     await db.updateTerm({...term, notes: e.detail.notes})

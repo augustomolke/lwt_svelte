@@ -2,9 +2,10 @@
 
 
 <script lang='ts'>
-import PreviewContent from './PreviewContent.svelte'
-import currentContent from '../../stores/currentContent'
+import PreviewContent from '../molecules/PreviewContent.svelte'
+import currentContent from '../../../stores/currentContent'
 import {push} from 'svelte-spa-router'
+import FloatingRoundButton from '../atoms/FloatingRoundButton.svelte'
 
 
 let errors: Record<string, string> = {}
@@ -40,18 +41,21 @@ const handleSubmit = async () => {
 
 </script>
 
-    <form on:submit|preventDefault={handleSubmit}>
+    <form>
 
         <input placeholder="Title" type="text" aria-invalid={errors.title && true} class:error={errors.title} bind:value={title} />
         <textarea placeholder="Something interesting to read..." type="text" aria-invalid={errors.content && true} class:error={errors.originalString}  bind:value={originalString}/>
 
-
+        {#if loading}
+        <progress class="progress w-56"></progress>
+        {:else}
         <PreviewContent originalString={originalString}/>
-
-
-        <button aria-busy={loading}>Submit</button>
-
+        {/if}
       </form>
+
+      <FloatingRoundButton onClick={handleSubmit}>
+        A
+      </FloatingRoundButton>
 
 
 

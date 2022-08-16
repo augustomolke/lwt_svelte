@@ -2,7 +2,7 @@
 
 
 <script lang='ts'>
-import PreviewContentPage from '../components/PreviewContent.svelte'
+import PreviewContentPage from '../components/molecules/PreviewContent.svelte'
 import db from '../../db'
 import currentContent from '../../stores/currentContent'
 import { push } from 'svelte-spa-router';
@@ -45,7 +45,7 @@ const handleDelete = async ()=>{
 </script>
 
     {#await contentPromise}
-        <p aria-busy={true}>Processing...</p>
+        <progress class="progress w-56"></progress>
     {:then} 
     <form on:submit|preventDefault={handleSubmit}>
 

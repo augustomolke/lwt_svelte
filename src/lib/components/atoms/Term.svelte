@@ -1,5 +1,5 @@
 <script lang="ts">    
-    import type {Term} from "../../db";
+    import type {Term} from "../../../db";
     import {createEventDispatcher} from 'svelte'
     export let term: Term;
     export let disabled:boolean = false;

@@ -2,6 +2,7 @@
 import db from '../../../db'
 import ContentCard from '../atoms/ContentCard.svelte';
 import Input from '../atoms/Input.svelte';
+import Loader from '../atoms/Loader.svelte';
 
     let contentsPromise = db.getContents()
 
@@ -19,7 +20,8 @@ import Input from '../atoms/Input.svelte';
 <div class="flex flex-col gap-2 grow">    
 
     {#await contentsPromise}
-        <progress class="progress w-56 m-auto"></progress>
+    <Loader/>
+
     {:then contents}
             {#each contents as content}
                 <ContentCard content={content}/>

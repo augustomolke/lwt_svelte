@@ -6,6 +6,7 @@ import PreviewContentPage from '../components/molecules/PreviewContent.svelte'
 import db from '../../db'
 import currentContent from '../../stores/currentContent'
 import { push } from 'svelte-spa-router';
+import Loader from '../components/atoms/Loader.svelte';
 export let params={slug:undefined};
 
 const contentPromise = currentContent.getContent(params.slug)
@@ -45,7 +46,7 @@ const handleDelete = async ()=>{
 </script>
 
     {#await contentPromise}
-        <progress class="progress w-56"></progress>
+    <Loader/>
     {:then} 
     <form on:submit|preventDefault={handleSubmit}>
 
@@ -64,6 +65,11 @@ const handleDelete = async ()=>{
 
     <style>
 
+.wrapper {
+    height: calc(100vh - 4rem);
+    display: flex;
+    align-items: center;
+  }
     .error {
         border: 1px solid red;
     }

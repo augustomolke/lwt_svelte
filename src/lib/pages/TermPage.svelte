@@ -11,6 +11,7 @@ const termPromise = db.getTerm(params.id)
 
 
 {#await termPromise}
+
     <progress class="progress w-56"></progress>
 {:then term} 
 <article>

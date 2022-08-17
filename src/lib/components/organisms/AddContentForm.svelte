@@ -6,6 +6,7 @@ import PreviewContent from '../molecules/PreviewContent.svelte'
 import currentContent from '../../../stores/currentContent'
 import {push} from 'svelte-spa-router'
 import FloatingRoundButton from '../atoms/FloatingRoundButton.svelte'
+import Loader from '../atoms/Loader.svelte'
 
 
 let errors: Record<string, string> = {}
@@ -47,7 +48,7 @@ const handleSubmit = async () => {
         <textarea placeholder="Something interesting to read..." type="text" aria-invalid={errors.content && true} class:error={errors.originalString}  bind:value={originalString}/>
 
         {#if loading}
-        <progress class="progress w-56"></progress>
+        <Loader/>
         {:else}
         <PreviewContent originalString={originalString}/>
         {/if}

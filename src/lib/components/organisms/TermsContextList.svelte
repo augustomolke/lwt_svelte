@@ -1,6 +1,7 @@
 <script lang="ts">
 import db from '../../../db'
 import {link} from 'svelte-spa-router'
+import Loader from '../atoms/Loader.svelte';
 export let term;
 
 const contentsPromise = db.getContents(term.sources)
@@ -27,7 +28,7 @@ const getQuote = (originalString:string, term:string): string =>{
 
 {#await contentsPromise}
 
-<p aria-busy="true"/>
+<Loader/>
     
 {:then contents}
 

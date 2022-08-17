@@ -1,6 +1,6 @@
 
 
-<nav>
+<nav class="navbar">
   <ul>
     <li><strong>LWT</strong></li>
   </ul>
@@ -21,4 +21,7 @@
 
 <style>
 
+.navbar {
+z-index: 2;
+}
 </style>

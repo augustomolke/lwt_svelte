@@ -5,6 +5,7 @@
     import currentContent from '../../stores/currentContent/currentContent';
     import { push } from 'svelte-spa-router';
     import FloatingRoundButton from '../components/atoms/FloatingRoundButton.svelte';
+import Loader from '../components/atoms/Loader.svelte';
     export let params={slug:undefined};
 
     const contentPromise = currentContent.getContent(params.slug)
@@ -22,15 +23,15 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon></svg>
   </FloatingRoundButton>
 
-<div class="flex h-screen">
+
   {#await contentPromise}
-   <progress class="progress w-56 m-auto"></progress>
+    <Loader/>
   {:then} 
   {#if !$currentContent}
     <p>Content not found</p>
   {:else}
 
-  <div class="m-auto">
+  <div>
   {#each $currentContent.parsed as term }
   <Term term={term} on:toggle={()=>handleTermClick(term)}/>
   {/each}
@@ -40,4 +41,8 @@
 
   
 
-</div>
+<style>
+
+
+
+</style>

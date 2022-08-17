@@ -2,6 +2,7 @@
 import bd from '../../../db';
 import Input from '../../components/atoms/Input.svelte';
 import TermCard from '../../components/atoms/TermCard.svelte';
+import Loader from '../atoms/Loader.svelte';
 
 let termsPromise = bd.getTerms();
 
@@ -16,7 +17,9 @@ let termsPromise = bd.getTerms();
 </div>
     <div class="flex flex-col gap-2 grow">    
       {#await termsPromise}
-        <progress class="progress w-56 m-auto"></progress>
+
+      <Loader/>
+
       {:then terms}
     
       {#each terms as term (term.id)}

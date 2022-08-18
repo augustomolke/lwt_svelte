@@ -194,4 +194,8 @@
     -ms-user-select: none;
     user-select: none;
   }
+
+  :global(body.stop-scrolling) {
+    overflow: hidden !important;
+  }
 </style>

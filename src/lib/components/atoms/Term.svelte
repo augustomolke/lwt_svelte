@@ -21,7 +21,7 @@
 
   function pressingDown(e) {
     // Start the timer
-    originNode = e.target;
+    e.target.originNode = e.target;
     timer = setTimeout(() => {
       open = true;
     }, 500);
@@ -172,5 +172,14 @@
 
   .tooltip {
     margin: 0;
+  }
+
+  .word {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
 </style>

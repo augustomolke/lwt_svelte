@@ -14,10 +14,6 @@
 
   const dispatcher = createEventDispatcher();
 
-  const preventDefault = (e) => {
-    e.preventDefault();
-  };
-
   const disableScroll = () => {
     document.body.classList.add('stop-scrolling');
   };

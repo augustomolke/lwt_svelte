@@ -144,7 +144,7 @@
     {term.value}
   </div>
 {:else if term.type === 'symbol'}
-  <p>{term.value}</p>
+  <p class="symbol">{term.value}</p>
 {/if}
 
 <style>
@@ -193,7 +193,8 @@
 
   .word,
   .action-btn,
-  .tooltip {
+  .tooltip,
+  .symbol {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;

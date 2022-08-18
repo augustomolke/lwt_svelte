@@ -10,8 +10,23 @@
   let originNode;
   let currentNode;
   let tooltip;
+  let isScrolling = false;
 
   const dispatcher = createEventDispatcher();
+
+  const preventDefault = (e) => {
+    e.preventDefault();
+  };
+
+  const disableScroll = () => {
+    console.log('disable');
+    window.addEventListener('touchmove', preventDefault); // mobile
+  };
+
+  const enableScroll = () => {
+    console.log('enable');
+    window.removeEventListener('touchmove', preventDefault);
+  };
 
   const handleClick = () => {
     clearInterval(timer);
@@ -21,11 +36,12 @@
 
   function pressingDown(e) {
     // Start the timer
-    e.preventDefault();
     e.target.originNode = e.target;
     timer = setTimeout(() => {
-      open = true;
-    }, 500);
+      if (!isScrolling) {
+        open = true;
+      }
+    }, 600);
   }
 
   function notPressingDown() {
@@ -41,6 +57,8 @@
     if (originNode === currentNode) {
       handleClick();
     }
+
+    isScrolling = false;
   }
 
   const mouseOver = (e) => {
@@ -60,6 +78,7 @@
   };
 
   const trackTouch = (e) => {
+    isScrolling = true;
     currentNode = document.elementFromPoint(
       e.touches[0].pageX,
       e.touches[0].pageY
@@ -75,6 +94,8 @@
   const trackMouse = (e) => {
     currentNode = document.elementFromPoint(e.x, e.y);
   };
+
+  $: open ? disableScroll() : enableScroll();
 </script>
 
 {#if term.type === 'term'}

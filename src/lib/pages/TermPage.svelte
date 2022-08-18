@@ -25,7 +25,7 @@ const termPromise = db.getTerm(params.id)
     <footer> bla bla</footer>
 
 </article>
-<iframe src={`https://www.linguee.com/english-portuguese/translation/${term.value}.html`} title={term.value}/>
+<!-- <iframe src={`https://www.linguee.com/english-portuguese/translation/${term.value}.html`} title={term.value}/> -->
 
 {/await}
 

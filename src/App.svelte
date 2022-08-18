@@ -30,11 +30,6 @@ $: style = Object.keys($configs.colors).reduce((acc, current) => {
 
 <style>
 
-  :global(root) {
-    --primary: #black !important;
-    --switch-checked-background-color: #36762e !important;
-  }
-
 
 </style>
 

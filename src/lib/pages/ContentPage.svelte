@@ -8,7 +8,7 @@
 import Loader from '../components/atoms/Loader.svelte';
     export let params={slug:undefined};
 
-    const contentPromise = currentContent.getContent(params.slug)
+    const contentPromise =currentContent.getContent(params.slug)
 
 
     const handleTermClick = async (term:ITerm)=>{

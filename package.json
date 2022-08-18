@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@picocss/pico": "^1.5.3",
+    "@popperjs/core": "^2.11.6",
     "dexie": "^3.2.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",

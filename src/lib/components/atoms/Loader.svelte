@@ -16,7 +16,7 @@
   }
 
   progress {
-    margin: 50vh 10vw;
-    width: 80%;
+    margin: 50vh 25vw;
+    width: 50vw;
   }
 </style>

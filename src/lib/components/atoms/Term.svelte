@@ -191,7 +191,9 @@
     z-index: 3;
   }
 
-  .word {
+  .word,
+  .action-btn,
+  .tooltip {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;

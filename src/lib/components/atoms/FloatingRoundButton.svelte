@@ -3,7 +3,7 @@
 </script>
 
 <button on:click={onClick} class="floating-button">
-<slot/>
+  <slot />
 </button>
 
 <style>
@@ -14,8 +14,8 @@
     bottom: 25px;
     border-radius: 50%;
     width: 3.5rem;
-    height:3.5rem;
+    height: 3.5rem;
     padding: 0;
-    margin:0;
+    margin: 0;
   }
 </style>

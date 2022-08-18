@@ -1,4 +1,6 @@
-
+<script lang="ts">
+  import { link } from 'svelte-spa-router';
+</script>
 
 <nav class="navbar">
   <ul>
@@ -10,18 +12,10 @@
     <li><a use:link href="/settings" role="button">Settings</a></li>
   </ul>
 </nav>
-<slot/>
-
-
-
-<script lang="ts">
- import {link} from 'svelte-spa-router'
-
-</script>
+<slot />
 
 <style>
-
-.navbar {
-z-index: 2;
-}
+  .navbar {
+    z-index: 2;
+  }
 </style>

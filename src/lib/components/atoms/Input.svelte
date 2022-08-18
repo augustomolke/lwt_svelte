@@ -1,31 +1,30 @@
-
-
 <script lang="ts">
-    import debounce from 'lodash/debounce'
+  import debounce from 'lodash/debounce';
 
-    export let onChange;
-    export let debounceWaitingTime;
-    export let autoFocus = false;
+  export let onChange;
+  export let debounceWaitingTime;
+  export let autoFocus = false;
 
-    let value;
+  let value;
 
+  const fn = debounceWaitingTime
+    ? (e) => debounce(onChange(e), debounce)
+    : onChange;
 
-    const fn = debounceWaitingTime ? (e)=> debounce(onChange(e), debounce): onChange;
+  const init = (el) => {
+    if (autoFocus) el.focus();
+  };
 
-    const init=(el)=>{
-        if(autoFocus) el.focus()
-    }
-
-
+  var a = 9;
 </script>
 
-
-<input class="input input-bordered w-full max-w-xs" 
-type="search"
-id="search" 
-name="search" 
-placeholder="Search" 
-use:init
-bind:value 
-on:keyup|preventDefault="{fn}"
+<input
+  class="input input-bordered w-full max-w-xs"
+  type="search"
+  id="search"
+  name="search"
+  placeholder="Search"
+  use:init
+  bind:value
+  on:keyup|preventDefault={fn}
 />

@@ -1,18 +1,15 @@
-
-  <div class="wrapper">
-    <progress></progress>
-  </div>
-
+<div class="wrapper">
+  <progress />
+</div>
 
 <style>
-    .wrapper {
-    height:100vh;
+  .wrapper {
+    height: 100vh;
     position: absolute;
-    top:0;
-    left:0;
+    top: 0;
+    left: 0;
     width: 100vw;
     z-index: -1;
-
   }
 
   progress {

@@ -3,6 +3,15 @@
   import { createEventDispatcher } from 'svelte';
   export let term: Term;
   export let disabled: boolean = false;
+  import { createPopperActions } from 'svelte-popperjs';
+  const [popperRef, popperContent] = createPopperActions({
+    placement: 'top',
+    strategy: 'fixed',
+  });
+  const extraOpts = {
+    modifiers: [{ name: 'offset', options: { offset: [0, 0] } }],
+  };
+
   let open = false;
   let timer;
   let nodeToDetectTouch;
@@ -23,6 +32,7 @@
   };
 
   const handleClick = () => {
+    console.log('rodou');
     clearInterval(timer);
     open = false;
     dispatcher('toggle');
@@ -92,9 +102,28 @@
   $: open ? disableScroll() : enableScroll();
 </script>
 
+{#if open}
+  <article
+    class="tooltip"
+    use:popperContent={extraOpts}
+    bind:this={tooltip}
+    on:mouseover={trackMouse}
+    on:focus={trackMouse}
+    on:mouseleave={mouseNotOver}
+  >
+    <button
+      class="action-btn"
+      bind:this={nodeToDetectTouch}
+      on:click={handleClick}
+    >
+      Action
+    </button>
+  </article>
+{/if}
 {#if term.type === 'term'}
   <div
     class:open
+    use:popperRef
     title={term.notes}
     bind:this={currentNode}
     on:click={handleClick}
@@ -118,28 +147,7 @@
   <p>{term.value}</p>
 {/if}
 
-{#if open}
-  <article
-    class="tooltip"
-    bind:this={tooltip}
-    on:mouseover={trackMouse}
-    on:focus={trackMouse}
-    on:mouseleave={mouseNotOver}
-  >
-    <button
-      class="term-menu"
-      bind:this={nodeToDetectTouch}
-      on:click={handleClick}
-    >
-      Action
-    </button>
-  </article>
-{/if}
-
 <style>
-  .term-menu {
-    position: static;
-  }
   p {
     display: inline;
   }
@@ -180,6 +188,7 @@
 
   .tooltip {
     margin: 0;
+    z-index: 3;
   }
 
   .word {
@@ -193,5 +202,10 @@
 
   :global(body.stop-scrolling) {
     overflow: hidden !important;
+  }
+
+  .action-btn {
+    padding: 0.5rem;
+    border-radius: 50%;
   }
 </style>

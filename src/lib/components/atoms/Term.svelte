@@ -19,13 +19,11 @@
   };
 
   const disableScroll = () => {
-    console.log('disable');
-    window.addEventListener('touchmove', preventDefault); // mobile
+    document.body.classList.add('stop-scrolling');
   };
 
   const enableScroll = () => {
-    console.log('enable');
-    window.removeEventListener('touchmove', preventDefault);
+    document.body.classList.remove('stop-scrolling');
   };
 
   const handleClick = () => {
@@ -54,7 +52,7 @@
       currentNode = undefined;
     }
 
-    if (originNode === currentNode) {
+    if (originNode === currentNode && !isScrolling) {
       handleClick();
     }
 
@@ -97,6 +95,10 @@
 
   $: open ? disableScroll() : enableScroll();
 </script>
+
+<svelte:head>
+  <link rel="stylesheet" href="/src/utilsStyle.css" />
+</svelte:head>
 
 {#if term.type === 'term'}
   <div
@@ -182,14 +184,6 @@
   .proficient {
     background-color: transparent;
     opacity: 1;
-  }
-
-  .open {
-    /* position:fixed; */
-  }
-
-  .mouseover {
-    background-color: black !important;
   }
 
   .tooltip {

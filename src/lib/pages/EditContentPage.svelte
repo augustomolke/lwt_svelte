@@ -69,11 +69,6 @@
 {/await}
 
 <style>
-  .wrapper {
-    height: calc(100vh - 4rem);
-    display: flex;
-    align-items: center;
-  }
   .error {
     border: 1px solid red;
   }

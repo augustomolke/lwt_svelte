@@ -6,7 +6,7 @@
   import { createPopperActions } from 'svelte-popperjs';
   const [popperRef, popperContent] = createPopperActions({
     placement: 'top',
-    strategy: 'absolute',
+    strategy: 'fixed',
   });
   const extraOpts = {
     modifiers: [{ name: 'offset', options: { offset: [0, 0] } }],
@@ -114,6 +114,7 @@
       class="action-btn"
       bind:this={nodeToDetectTouch}
       on:click={handleClick}
+      on:touchend={handleClick}
     >
       Action
     </button>

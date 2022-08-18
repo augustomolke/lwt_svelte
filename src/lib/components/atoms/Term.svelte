@@ -6,7 +6,7 @@
   import { createPopperActions } from 'svelte-popperjs';
   const [popperRef, popperContent] = createPopperActions({
     placement: 'top',
-    strategy: 'fixed',
+    strategy: 'absolute',
   });
   const extraOpts = {
     modifiers: [{ name: 'offset', options: { offset: [0, 0] } }],
@@ -32,7 +32,6 @@
   };
 
   const handleClick = () => {
-    console.log('rodou');
     clearInterval(timer);
     open = false;
     dispatcher('toggle');
@@ -45,7 +44,7 @@
       if (!isScrolling) {
         open = true;
       }
-    }, 600);
+    }, 300);
   }
 
   function notPressingDown() {
@@ -70,7 +69,7 @@
     timer = setTimeout(() => {
       open = true;
       originNode = e.target;
-    }, 750);
+    }, 600);
   };
 
   const mouseNotOver = (e) => {
@@ -84,8 +83,8 @@
   const trackTouch = (e) => {
     isScrolling = true;
     currentNode = document.elementFromPoint(
-      e.touches[0].pageX,
-      e.touches[0].pageY
+      e.touches[0].clientX,
+      e.touches[0].clientY
     );
 
     if (currentNode === nodeToDetectTouch) {

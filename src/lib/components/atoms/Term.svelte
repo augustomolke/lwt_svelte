@@ -21,6 +21,7 @@
 
   function pressingDown(e) {
     // Start the timer
+    e.preventDefault();
     e.target.originNode = e.target;
     timer = setTimeout(() => {
       open = true;

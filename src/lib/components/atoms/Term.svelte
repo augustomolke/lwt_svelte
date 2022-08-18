@@ -5,60 +5,74 @@
   export let disabled: boolean = false;
   let open = false;
   let timer;
-  let detectTouch;
+  let nodeToDetectTouch;
   let touchEndFunc;
+  let originNode;
+  let currentNode;
+  let tooltip;
 
   const dispatcher = createEventDispatcher();
+
   const handleClick = () => {
-    dispatcher('toggle');
-  };
-
-  const handleOpen = () => {
-    open = true;
-  };
-
-  const handleClose = () => {
-    open = false;
-  };
-
-  const handleTouchStart = () => {
-    timer = setTimeout(() => {
-      open = true;
-    }, 500);
-  };
-
-  const handleTouchEnd = () => {
     clearInterval(timer);
     open = false;
+    dispatcher('toggle');
   };
 
   function pressingDown(e) {
     // Start the timer
-    e.preventDefault();
-    console.log(e);
+    originNode = e.target;
     timer = setTimeout(() => {
       open = true;
     }, 500);
   }
 
-  function notPressingDown(e) {
+  function notPressingDown() {
     // Stop the timer
     if (touchEndFunc) touchEndFunc();
-    open = false;
-    clearInterval(timer);
+
+    if (currentNode !== originNode && currentNode !== tooltip) {
+      open = false;
+      clearInterval(timer);
+      currentNode = undefined;
+    }
+
+    if (originNode === currentNode) {
+      handleClick();
+    }
   }
 
+  const mouseOver = (e) => {
+    // Start the timer
+    timer = setTimeout(() => {
+      open = true;
+      originNode = e.target;
+    }, 750);
+  };
+
+  const mouseNotOver = (e) => {
+    // Stop the timer
+    if (e.toElement !== tooltip) {
+      open = false;
+    }
+    clearInterval(timer);
+  };
+
   const trackTouch = (e) => {
-    const node = document.elementFromPoint(
+    currentNode = document.elementFromPoint(
       e.touches[0].pageX,
       e.touches[0].pageY
     );
 
-    if (node === detectTouch) {
+    if (currentNode === nodeToDetectTouch) {
       touchEndFunc = handleClick;
     } else {
       touchEndFunc = null;
     }
+  };
+
+  const trackMouse = (e) => {
+    currentNode = document.elementFromPoint(e.x, e.y);
   };
 </script>
 
@@ -66,10 +80,11 @@
   <div
     class:open
     title={term.notes}
+    bind:this={currentNode}
     on:click={handleClick}
-    on:mousedown={pressingDown}
-    on:mouseup={notPressingDown}
-    on:mouseleave={notPressingDown}
+    on:mouseover={mouseOver}
+    on:mouseleave={mouseNotOver}
+    on:focus={mouseOver}
     on:touchstart={pressingDown}
     on:touchend={notPressingDown}
     on:touchmove={trackTouch}
@@ -88,10 +103,20 @@
 {/if}
 
 {#if open}
-  <article>
-    <button class="term-menu" bind:this={detectTouch} on:click={handleClick}
-      >Action</button
+  <article
+    class="tooltip"
+    bind:this={tooltip}
+    on:mouseover={trackMouse}
+    on:focus={trackMouse}
+    on:mouseleave={mouseNotOver}
+  >
+    <button
+      class="term-menu"
+      bind:this={nodeToDetectTouch}
+      on:click={handleClick}
     >
+      Action
+    </button>
   </article>
 {/if}
 
@@ -143,5 +168,9 @@
 
   .mouseover {
     background-color: black !important;
+  }
+
+  .tooltip {
+    margin: 0;
   }
 </style>

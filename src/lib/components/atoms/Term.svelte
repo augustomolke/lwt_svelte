@@ -96,10 +96,6 @@
   $: open ? disableScroll() : enableScroll();
 </script>
 
-<svelte:head>
-  <link rel="stylesheet" href="/src/utilsStyle.css" />
-</svelte:head>
-
 {#if term.type === 'term'}
   <div
     class:open

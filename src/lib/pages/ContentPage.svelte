@@ -6,6 +6,7 @@
   import { push } from 'svelte-spa-router';
   import FloatingRoundButton from '../components/atoms/FloatingRoundButton.svelte';
   import Loader from '../components/atoms/Loader.svelte';
+  import DragNDrogMenu from '../components/molecules/DragNDropMenu';
   export let params = { slug: undefined };
 
   const contentPromise = currentContent.getContent(params.slug);
@@ -41,7 +42,46 @@
   {:else}
     <div>
       {#each $currentContent.parsed as term}
-        <Term {term} on:toggle={() => handleTermClick(term)} />
+        {#if term.type === 'term'}
+          <DragNDrogMenu
+            actions={[
+              {
+                label: '0',
+                func: () => {
+                  currentContent.updateOrCreateTerm(term, { status: 0 });
+                },
+              },
+              {
+                label: '1',
+                func: () => {
+                  currentContent.updateOrCreateTerm(term, { status: 1 });
+                },
+              },
+              {
+                label: '2',
+                func: () => {
+                  currentContent.updateOrCreateTerm(term, { status: 2 });
+                },
+              },
+              {
+                label: '3',
+                func: () => {
+                  currentContent.updateOrCreateTerm(term, { status: 3 });
+                },
+              },
+              {
+                label: 'See more',
+                func: () => {
+                  push(`/terms/${term.id}`);
+                },
+              },
+            ]}
+          >
+            <Term {term} on:toggle={() => handleTermClick(term)} />
+          </DragNDrogMenu>
+        {:else}
+          <Term {term} on:toggle={() => handleTermClick(term)} />
+        {/if}
       {/each}
     </div>
   {/if}

@@ -1,138 +1,119 @@
 <script lang="ts">
   import type { Term } from '../../../db';
-  import { createEventDispatcher } from 'svelte';
   export let term: Term;
   export let disabled: boolean = false;
-  import { createPopperActions } from 'svelte-popperjs';
-  const [popperRef, popperContent] = createPopperActions({
-    placement: 'top',
-    strategy: 'fixed',
-  });
-  const extraOpts = {
-    modifiers: [{ name: 'offset', options: { offset: [0, 0] } }],
-  };
+  // import { createPopperActions } from 'svelte-popperjs';
+  // const [popperRef, popperContent] = createPopperActions({
+  //   placement: 'top',
+  //   strategy: 'fixed',
+  // });
+  // const extraOpts = {
+  //   modifiers: [{ name: 'offset', options: { offset: [0, -8] } }],
+  // };
 
-  let open = false;
-  let timer;
-  let nodeToDetectTouch;
-  let touchEndFunc;
-  let originNode;
-  let currentNode;
-  let tooltip;
-  let isScrolling = false;
+  // let open = false;
+  // let timer;
+  // let nodeToDetectTouch;
+  // let touchEndFunc;
+  // let originNode;
+  // let currentNode;
+  // let tooltip;
+  // let isScrolling = false;
 
-  const dispatcher = createEventDispatcher();
+  // const dispatcher = createEventDispatcher();
 
-  const disableScroll = () => {
-    document.body.classList.add('stop-scrolling');
-  };
+  // const disableScroll = () => {
+  //   document.body.classList.add('stop-scrolling');
+  // };
 
-  const enableScroll = () => {
-    document.body.classList.remove('stop-scrolling');
-  };
+  // const enableScroll = () => {
+  //   document.body.classList.remove('stop-scrolling');
+  // };
 
-  const handleClick = () => {
-    clearInterval(timer);
-    open = false;
-    dispatcher('toggle');
-  };
+  // const handleClick = () => {
+  //   clearInterval(timer);
+  //   open = false;
+  //   dispatcher('toggle');
+  // };
 
-  function pressingDown(e) {
-    // Start the timer
-    e.target.originNode = e.target;
-    timer = setTimeout(() => {
-      if (!isScrolling) {
-        open = true;
-      }
-    }, 300);
-  }
+  // function pressingDown(e) {
+  //   // Start the timer
+  //   e.target.originNode = e.target;
+  //   timer = setTimeout(() => {
+  //     if (!isScrolling) {
+  //       open = true;
+  //     }
+  //   }, 300);
+  // }
 
-  function notPressingDown() {
-    // Stop the timer
-    if (touchEndFunc) touchEndFunc();
+  // function notPressingDown() {
+  //   // Stop the timer
+  //   if (touchEndFunc) touchEndFunc();
 
-    if (currentNode !== originNode && currentNode !== tooltip) {
-      open = false;
-      clearInterval(timer);
-      currentNode = undefined;
-    }
+  //   if (currentNode !== originNode && currentNode !== tooltip) {
+  //     open = false;
+  //     clearInterval(timer);
+  //     currentNode = undefined;
+  //   }
 
-    if (originNode === currentNode && !isScrolling) {
-      handleClick();
-    }
+  //   if (originNode === currentNode && !isScrolling) {
+  //     handleClick();
+  //   }
 
-    isScrolling = false;
-  }
+  //   isScrolling = false;
+  // }
 
-  const mouseOver = (e) => {
-    // Start the timer
-    timer = setTimeout(() => {
-      open = true;
-      originNode = e.target;
-    }, 600);
-  };
+  // const mouseOver = (e) => {
+  //   // Start the timer
+  //   timer = setTimeout(() => {
+  //     open = true;
+  //     originNode = e.target;
+  //   }, 600);
+  // };
 
-  const mouseNotOver = (e) => {
-    // Stop the timer
-    if (e.toElement !== tooltip) {
-      open = false;
-    }
-    clearInterval(timer);
-  };
+  // const mouseNotOver = (e) => {
+  //   // Stop the timer
+  //   if (e.toElement !== tooltip) {
+  //     open = false;
+  //   }
+  //   clearInterval(timer);
+  // };
 
-  const trackTouch = (e) => {
-    isScrolling = true;
-    currentNode = document.elementFromPoint(
-      e.touches[0].clientX,
-      e.touches[0].clientY
-    );
+  // const trackTouch = (e) => {
+  //   isScrolling = true;
+  //   currentNode = document.elementFromPoint(
+  //     e.touches[0].clientX,
+  //     e.touches[0].clientY
+  //   );
 
-    if (currentNode === nodeToDetectTouch) {
-      touchEndFunc = handleClick;
-    } else {
-      touchEndFunc = null;
-    }
-  };
+  //   if (currentNode === nodeToDetectTouch) {
+  //     touchEndFunc = handleClick;
+  //   } else {
+  //     touchEndFunc = null;
+  //   }
+  // };
 
-  const trackMouse = (e) => {
-    currentNode = document.elementFromPoint(e.x, e.y);
-  };
+  // const trackMouse = (e) => {
+  //   currentNode = document.elementFromPoint(e.x, e.y);
+  // };
 
-  $: open ? disableScroll() : enableScroll();
+  // $: open ? disableScroll() : enableScroll();
+
+  // use:popperRef
+  //   bind:this={currentNode}
+  //   on:click={handleClick}
+  //   on:mouseover={mouseOver}
+  //   on:mouseleave={mouseNotOver}
+  //   on:focus={mouseOver}
+  //   on:touchstart={pressingDown}
+  //   on:touchend={notPressingDown}
+  //   on:touchmove={trackTouch}
 </script>
 
-{#if open}
-  <article
-    class="tooltip"
-    use:popperContent={extraOpts}
-    bind:this={tooltip}
-    on:mouseover={trackMouse}
-    on:focus={trackMouse}
-    on:mouseleave={mouseNotOver}
-  >
-    <button
-      class="action-btn"
-      bind:this={nodeToDetectTouch}
-      on:click={handleClick}
-      on:touchend={handleClick}
-    >
-      Action
-    </button>
-  </article>
-{/if}
 {#if term.type === 'term'}
   <div
     class:open
-    use:popperRef
     title={term.notes}
-    bind:this={currentNode}
-    on:click={handleClick}
-    on:mouseover={mouseOver}
-    on:mouseleave={mouseNotOver}
-    on:focus={mouseOver}
-    on:touchstart={pressingDown}
-    on:touchend={notPressingDown}
-    on:touchmove={trackTouch}
     class:disabled
     class:good={term.status === 2}
     class:neverSeen={term.status === 0}
@@ -141,6 +122,26 @@
     role={disabled ? '' : 'button'}
     class="secondary outline word"
   >
+    <!-- {#if open}
+      <div
+        class="tooltip"
+        use:popperContent={extraOpts}
+        bind:this={tooltip}
+        on:mouseover={trackMouse}
+        on:focus={trackMouse}
+        on:mouseleave={mouseNotOver}
+      >
+        <button
+          class="action-btn"
+          bind:this={nodeToDetectTouch}
+          on:click={handleClick}
+          on:touchend={handleClick}
+        >
+          Action
+        </button>
+      </div>
+    {/if} -->
+
     {term.value}
   </div>
 {:else if term.type === 'symbol'}
@@ -202,11 +203,6 @@
     -ms-user-select: none;
     user-select: none;
   }
-
-  :global(body.stop-scrolling) {
-    overflow: hidden !important;
-  }
-
   .action-btn {
     padding: 0.5rem;
     border-radius: 50%;
